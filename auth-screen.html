@@ -275,26 +275,107 @@
     </div>
 
     <!-- Встроенные скрипты обработки событий -->
+        <!-- Встроенные скрипты обработки событий -->
+          <!-- Встроенные скрипты обработки событий и переключения экранов -->
     <script>
+        // Функция для полной замены интерфейса на игровой экран
+        function switchToGame(charSheetName) {
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.textContent = "загрузка боевого движка...";
+
+            google.script.run
+                .withSuccessHandler(function(htmlContent) {
+                    document.body.innerHTML = htmlContent;
+                    
+                    if (typeof initGameUI === 'function') {
+                        initGameUI(charSheetName);
+                    } else if (typeof updateBarsUI === 'function') {
+                        updateBarsUI();
+                    }
+                })
+                .withFailureHandler(function(err) {
+                    statusMsg.textContent = "ошибка материализации игрового мира.";
+                    console.error("Ошибка загрузки экрана игры:", err);
+                })
+                .loadGameScreen();
+        }
+
+        // Обработка отправки формы авторизации
         document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Защита от классической перезагрузки страницы
+            e.preventDefault();
             
             const username = document.getElementById('username').value.trim();
             const secretWord = document.getElementById('secretWord').value;
             const statusMsg = document.getElementById('statusMessage');
             const submitBtn = document.getElementById('submitBtn');
 
-            // 1. Включаем индикатор загрузки и анимацию мерцания
             statusMsg.textContent = "ищем вас в списке...";
             statusMsg.classList.add('visible');
-
-            // 2. Блокируем кнопку, чтобы избежать повторных кликов
             submitBtn.disabled = true;
 
-            // Сюда на следующей сессии мы прикрутим вызов бэкенда:
-            // google.script.run.withSuccessHandler(...).withFailureHandler(...).verifyUser(username, secretWord);
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    if (response && response.success) {
+                        statusMsg.textContent = "доступ разрешен. входим...";
+                        
+                        localStorage.setItem('combat_engine_username', response.username);
+                        
+                        let targetSheet = "";
+                        // ИСПРАВЛЕНО: Правильное чтение из массива персонажей [0]
+                        if (response.characters && response.characters.length > 0) {
+                            targetSheet = response.characters[0].sheetName;
+                            localStorage.setItem('combat_engine_active_sheet', targetSheet);
+                        }
+
+                        setTimeout(function() {
+                            switchToGame(targetSheet);
+                        }, 800);
+
+                    } else {
+                        statusMsg.textContent = response ? response.message : "Неизвестная ошибка сервера.";
+                        submitBtn.disabled = false;
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    statusMsg.textContent = "ошибка связи с сервером душ.";
+                    submitBtn.disabled = false;
+                    console.error("Ошибка авторизации на сервере:", error);
+                })
+                .authenticateUser(username, secretWord);
+        });
+
+        // АВТО-ВХОД: Если игрок уже авторизован
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedUser = localStorage.getItem('combat_engine_username');
+            const savedSheet = localStorage.getItem('combat_engine_active_sheet');
             
-            console.log("Запрос отправлен для:", username);
+            if (savedUser) {
+                const statusMsg = document.getElementById('statusMessage');
+                const submitBtn = document.getElementById('submitBtn');
+                
+                statusMsg.textContent = "пробуждение души...";
+                statusMsg.classList.add('visible');
+                submitBtn.disabled = true;
+
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        if (response && response.success) {
+                            statusMsg.textContent = "приветствуем снова...";
+                            switchToGame(savedSheet);
+                        } else {
+                            localStorage.removeItem('combat_engine_username');
+                            localStorage.removeItem('combat_engine_active_sheet');
+                            statusMsg.classList.remove('visible');
+                            submitBtn.disabled = false;
+                        }
+                    })
+                    .withFailureHandler(function(err) {
+                        statusMsg.classList.remove('visible');
+                        submitBtn.disabled = false;
+                        console.error("Ошибка авто-входа:", err);
+                    })
+                    .authenticateUserWithoutPassword(savedUser);
+            }
         });
     </script>
 </body>

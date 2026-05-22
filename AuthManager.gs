@@ -73,7 +73,7 @@ function authenticateUserWithoutPassword(username) {
 }
 
 /**
- * Внутренняя функция сбора персонажей игрока.
+ * Внутренняя функция сбора персонажей игрока (с защитой от пустых ячеек).
  */
 function getPlayerCharactersList(username) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -83,12 +83,18 @@ function getPlayerCharactersList(username) {
   sheets.forEach(sheet => {
     const k1Range = sheet.getRange("K1");
     if (!k1Range.isBlank() && k1Range.getValue().toString().trim() === "Инфо") {
-      const owner = sheet.getRange("L2").getValue().toString().trim();
+      const ownerVal = sheet.getRange("L2").getValue();
+      const owner = ownerVal ? ownerVal.toString().trim() : "";
+      
       if (owner.toLowerCase() === username.toString().trim().toLowerCase()) {
+        // Добавляем защиту: проверяем, есть ли вообще данные в ячейках
+        const charNameVal = sheet.getRange("L6").getValue();
+        const levelVal = sheet.getRange("L7").getValue();
+        
         matchedCharacters.push({
           sheetName: sheet.getName(),
-          charName: sheet.getRange("L6").getValue().toString(),
-          level: sheet.getRange("L7").getValue().toString()
+          charName: charNameVal ? charNameVal.toString() : "Безымянный",
+          level: levelVal ? levelVal.toString() : "1"
         });
       }
     }
@@ -166,6 +172,16 @@ function getCharacterFullProfile(sheetName) {
       profile.weapons.push({ name: wName, count: wDurability + " Пр." });
     }
   });
+
+
+
+  /**
+ * Возвращает HTML-код игрового экрана по запросу фронтенда.
+ */
+function loadGameScreen() {
+  return HtmlService.createHtmlOutputFromFile('game-screen').getContent();
+}
+
 
   return profile;
 }
