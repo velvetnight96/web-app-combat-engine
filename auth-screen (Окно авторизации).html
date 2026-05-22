@@ -1,0 +1,79 @@
+<!-- Экраны в теле HTML панели -->
+<body>
+
+  <!-- 1. ЭКРАН АВТОРИЗАЦИИ -->
+  <div id="auth-screen" style="padding: 20px; text-align: center; margin-top: 30px;">
+    <h3 style="color: #bb86fc; margin-bottom: 20px;">Combat Engine Log In</h3>
+    
+    <input type="text" id="username" placeholder="Ваш уникальный ник" 
+           style="width: 85%; padding: 10px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px;"><br>
+           
+    <input type="password" id="password" placeholder="Пароль" 
+           style="width: 85%; padding: 10px; margin-bottom: 20px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px;"><br>
+           
+    <button onclick="login()" style="width: 90%; padding: 12px; background: #bb86fc; color: #121212; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">
+      Войти в игру
+    </button>
+    
+    <div id="auth-error" style="color: #ef5350; margin-top: 15px; font-size: 13px;"></div>
+  </div>
+
+  <!-- 2. ИГРОВОЙ ЭКРАН (Изначально скрыт через display: none) -->
+  <div id="game-screen" style="display: none;">
+    <div class="header">
+      <div style="font-size: 11px; color: #888; text-transform: uppercase;">Игрок: <span id="player-nick-display" style="color: #fff;"></span></div>
+      <!-- Наш динамический селектор персонажей -->
+      <select id="char-selector" onchange="loadCharacterData(this.value)" style="background: #2c1a3a; color: #bb86fc; border: 1px solid #4a2c6d; padding: 5px; border-radius: 4px; font-weight: bold; width: 80%; margin-top: 5px; text-align: center;">
+      </select>
+    </div>
+    <!-- Сюда пойдут вкладки снаряжения, резистов и сумки -->
+  </div>
+
+  <!-- Логика работы на стороне клиента (JavaScript) -->
+  <script>
+    function login() {
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      const errorDiv = document.getElementById('auth-error');
+      
+      errorDiv.innerText = "Авторизация...";
+      
+      // Вызываем бэкэнд-скрипт GAS
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            // Переключаем экраны
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('player-nick-display').innerText = response.username;
+            
+            // Наполняем выпадающий список персонажами игрока
+            const selector = document.getElementById('char-selector');
+            selector.innerHTML = ''; // Чистим
+            
+            if (response.characters.length === 0) {
+              selector.innerHTML = '<option value="">Нет персонажей</option>';
+            } else {
+              response.characters.forEach(function(char) {
+                let opt = document.createElement('option');
+                opt.value = char.sheetName; // имя листа
+                opt.innerText = char.charName + " (Ур. " + char.level + ")";
+                selector.appendChild(opt);
+              });
+              // Сразу загружаем первого персонажа из списка
+              loadCharacterData(response.characters[0].sheetName);
+            }
+          } else {
+            errorDiv.innerText = response.message;
+          }
+        })
+        .authenticateUser(u, p);
+    }
+    
+    function loadCharacterData(sheetName) {
+      if (!sheetName) return;
+      console.log("Загрузка данных для листа: " + sheetName);
+      // Сюда мы подвяжем функцию вызова getCharacterProfileData(sheetName)
+    }
+  </script>
+</body>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Глобальные стили в стиле Dark Fantasy */
+    body {
+      background-color: #121214;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+    
+    /* Скроллбар */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1a1a1e; }
+    ::-webkit-scrollbar-thumb { background: #4a3b5c; border-radius: 3px; }
+
+    /* Стили для экрана авторизации */
+    .auth-container {
+      max-width: 300px;
+      margin: 40px auto 0 auto;
+      padding: 20px;
+      background: #1a1a1e;
+      border: 1px solid #443061;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+    .auth-title {
+      color: #b7791f;
+      margin-top: 0;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 18px;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      background: #121214;
+      border: 1px solid #2d2d35;
+      color: #fff;
+      border-radius: 6px;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .auth-input:focus { border-color: #805ad5; }
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #6b46c1, #443061);
+      color: #fff;
+      border: none;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .auth-btn:hover { background: #553c7b; }
+    .auth-error { color: #f56565; margin-top: 12px; font-size: 12px; min-height: 16px; }
+
+    /* Игровой интерфейс */
+    .char-card-header {
+      background: linear-gradient(135deg, #1f142e, #0d0d11);
+      border: 1px solid #443061; border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 12px;
+    }
+    .player-owner { font-size: 11px; color: #a0aec0; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+    .char-selector { background: #1a0f29; color: #d6bcfa; border: 1px solid #6b46c1; padding: 6px 10px; border-radius: 6px; font-weight: bold; font-size: 16px; width: 100%; text-align: center; outline: none; cursor: pointer; }
+    .char-meta { font-size: 12px; color: #cbd5e1; margin-top: 8px; display: flex; justify-content: center; gap: 8px; }
+    .meta-tag { background: rgba(107, 70, 193, 0.2); border: 1px solid rgba(107, 70, 193, 0.4); padding: 2px 6px; border-radius: 4px; }
+    
+    .stats-row { display: flex; gap: 10px; margin-top: 12px; }
+    .bar-container { flex: 1; background: #1a1a1e; border: 1px solid #333; border-radius: 6px; padding: 6px 8px; position: relative; }
+    .bar-label { font-size: 10px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .bar-bg { background: #2d3748; height: 12px; border-radius: 3px; overflow: hidden; }
+    .bar-fill-hp { background: linear-gradient(90deg, #e53e3e, #fc8181); height: 100%; width: 0%; transition: width 0.3s; }
+    .bar-fill-ap { background: linear-gradient(90deg, #3182ce, #63b3ed); height: 100%; width: 0%; transition: width 0.3s; }
+    
+    .tabs-nav { display: flex; background: #1a1a1e; border: 1px solid #2d2d35; border-radius: 8px; padding: 3px; margin-bottom: 12px; }
+    .tab-btn { flex: 1; background: none; border: none; color: #718096; padding: 8px 4px; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 6px; }
+    .tab-btn.active { background: #2d1f3d; color: #b7791f; border: 1px solid #553c7b; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .equipment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .slot-box { background: #16161a; border: 1px solid #2d2d35; border-left: 3px solid #805ad5; border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; }
+    .slot-name { font-size: 10px; color: #718096; text-transform: uppercase; }
+    .slot-value { font-size: 13px; font-weight: 500; color: #f7fafc; margin-top: 2px; }
+    .slot-empty { color: #4a5568; font-style: italic; }
+    
+    .resists-list { background: #16161a; border: 1px solid #2d2d35; border-radius: 8px; padding: 6px; }
+    .resist-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #232329; }
+    .resist-val { font-weight: bold; background: #2d2d35; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .res-high { color: #48bb78; }
+    .res-neg { color: #f56565; }
+    
+    .inventory-section { margin-bottom: 10px; }
+    .section-title { font-size: 11px; color: #b7791f; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold; }
+    .inv-item { background: #16161a; border: 1px solid #2d2d35; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .inv-name { font-size: 13px; color: #e2e8f0; }
+    .inv-count { background: #443061; color: #e9d8fd; font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <!-- ================= ЭКРАН 1: АВТОРИЗАЦИЯ ================= -->
+  <div id="auth-screen" class="auth-container">
+    <h3 class="auth-title">Кто ты, герой?</h3>
+    <input type="text" id="username" class="auth-input" placeholder="Уникальный ник">
+    <input type="password" id="password" class="auth-input" placeholder="Пароль">
+    <button onclick="executeLogin()" class="auth-btn">Войти в игру</button>
+    <div id="auth-error" class="auth-error"></div>
+  </div>
+
+  <!-- ================= ЭКРАН 2: ИГРОВАЯ КАРТОЧКА (СКРЫТА) ================= -->
+  <div id="game-screen" style="display: none;">
+    <div class="char-card-header">
+      <div class="player-owner" id="display-owner">Владелец: —</div>
+      <select class="char-selector" id="charSelect" onchange="switchCharacter(this.value)"></select>
+      <div class="char-meta">
+        <span class="meta-tag" id="display-soul">—</span>
+        <span class="meta-tag" id="display-race">—</span>
+      </div>
+      <div class="stats-row">
+        <div class="bar-container">
+          <div class="bar-label"><span style="color:#fc8181">Здоровье</span><span id="txt-hp">0/0</span></div>
+          <div class="bar-bg"><div class="bar-fill-hp" id="fill-hp"></div></div>
+        </div>
+        <div class="bar-container">
+          <div class="bar-label"><span style="color:#63b3ed">Действия (ОД)</span><span id="txt-ap">0/0</span></div>
+          <div class="bar-bg"><div class="bar-fill-ap" id="fill-ap"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="openTab(event, 'equipment')">Снаряжение</button>
+      <button class="tab-btn" onclick="openTab(event, 'resists')">Резисты</button>
+      <button class="tab-btn" onclick="openTab(event, 'bag')">Сумка</button>
+    </div>
+
+    <div id="equipment" class="tab-content active">
+      <div class="equipment-grid" id="equipment-slots"></div>
+    </div>
+
+    <div id="resists" class="tab-content">
+      <div class="resists-list" id="resists-container"></div>
+    </div>
+
+    <div id="bag" class="tab-content">
+      <div class="inventory-section">
+        <div class="section-title">Расходники и Стимуляторы</div>
+        <div id="consumables-container"></div>
+      </div>
+      <div class="inventory-section" style="margin-top: 12px;">
+        <div class="section-title">Арсенал (Запасное оружие)</div>
+        <div id="weapons-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Логика работы на стороне клиента -->
+    <script>
+    // Принудительно запускаем проверку сессии сразу при загрузке страницы
+    window.addEventListener('load', function() {
+      const savedUser = localStorage.getItem('combat_engine_user');
+      if (savedUser) {
+        document.getElementById('auth-error').innerText = "Восстановление сессии...";
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.success) {
+              renderGameInterface(response);
+              // ИСПРАВЛЕНИЕ: Автоматически подгружаем характеристики первого персонажа
+              if (response.characters && response.characters.length > 0) {
+                switchCharacter(response.characters[0].sheetName);
+              }
+            } else {
+              localStorage.removeItem('combat_engine_user');
+              document.getElementById('auth-error').innerText = "Сессия истекла. Войдите заново.";
+            }
+          })
+          .withFailureHandler(function() {
+            document.getElementById('auth-error').innerText = "Ошибка сети.";
+          })
+          .authenticateUserWithoutPassword(savedUser);
+      }
+    });
+
+
+     // Ручной вход с выводом скрытых ошибок бэкэнда
+    function executeLogin() {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value;
+      const errBox = document.getElementById('auth-error');
+      
+      if (!user || !pass) {
+        errBox.innerText = "Заполните все поля!";
+        return;
+      }
+      
+      errBox.innerText = "Проверка данных...";
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            localStorage.setItem('combat_engine_user', response.username);
+            renderGameInterface(response);
+          } else {
+            errBox.innerText = response.message;
+          }
+        })
+        .withFailureHandler(function(err) {
+          // ИСПРАВЛЕНИЕ: Если упал сервер Google, мы увидим точную причину прямо на экране!
+          errBox.innerText = "Критическая ошибка сервера: " + err.message;
+          console.error(err);
+        })
+        .authenticateUser(user, pass);
+    }
+
+    // Отрисовка базового экрана
+    function renderGameInterface(response) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('game-screen').style.display = 'block';
+      
+      // Вставляем ник игрока и КНОПКУ выхода в HTML
+      const ownerDiv = document.getElementById('display-owner');
+      ownerDiv.innerHTML = `Владелец: ${response.username} <span onclick="logOut()" style="color:#f56565; cursor:pointer; font-size:11px; margin-left:10px; text-decoration:underline; font-weight:bold;">[Выйти]</span>`;
+      
+      const selector = document.getElementById('charSelect');
+      selector.innerHTML = '';
+      
+      if (response.characters.length === 0) {
+        selector.innerHTML = '<option>Нет персонажей</option>';
+    } else {
+      response.characters.forEach(function(char) {
+        let opt = document.createElement('option');
+        opt.value = char.sheetName;
+        opt.innerText = char.charName + " (Ур. " + char.level + ")";
+        selector.appendChild(opt);
+      });
+      // ИСПРАВЛЕНИЕ: Берем sheetName у самого первого персонажа в массиве [0]
+       switchCharacter(response.characters[0].sheetName);
+    }
+    }
+
+    function logOut() {
+      localStorage.removeItem('combat_engine_user');
+      document.getElementById('game-screen').style.display = 'none';
+      document.getElementById('auth-screen').style.display = 'block';
+      document.getElementById('auth-error').innerText = "Вы вышли из системы.";
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+    }
+
+    // Загрузка динамических полей с листа
+    function switchCharacter(sheetName) {
+      if (!sheetName || sheetName === "Нет персонажей") return;
+      
+      google.script.run
+        .withSuccessHandler(function(profile) {
+          if (!profile.success) return;
+          
+          document.getElementById('display-soul').innerText = profile.soulType || "—";
+          document.getElementById('display-race').innerText = profile.race || "—";
+          document.getElementById('txt-hp').innerText = profile.hpCurrent + "/" + profile.hpMax;
+          document.getElementById('txt-ap').innerText = profile.apCurrent + "/" + profile.apMax;
+          
+          // Расчет процентов для полосок ХП и ОД
+          document.getElementById('fill-hp').style.width = ((profile.hpCurrent / profile.hpMax) * 100) + "%";
+          document.getElementById('fill-ap').style.width = ((profile.apCurrent / profile.apMax) * 100) + "%";
+          
+          // Отрисовка Куклы
+          const eqContainer = document.getElementById('equipment-slots');
+          eqContainer.innerHTML = '';
+          for (let slot in profile.equipment) {
+            let val = profile.equipment[slot];
+            let isEmpty = val === "—" || val === "";
+            eqContainer.innerHTML += `
+              <div class="slot-box" style="${slot === 'В руках' ? 'border-left-color: #b7791f;' : ''}">
+                <span class="slot-name" style="${slot === 'В руках' ? 'color: #b7791f;' : ''}">${slot}</span>
+                <span class="slot-value ${isEmpty ? 'slot-empty' : ''}">${val}</span>
+              </div>`;
+          }
+          
+          // Отрисовка Резистов
+          const resContainer = document.getElementById('resists-container');
+          resContainer.innerHTML = '';
+          profile.resists.forEach(function(res) {
+            let isHigh = res.value.includes('-') === false && res.value !== '0%';
+            let isNeg = res.value.includes('-');
+            let valClass = isHigh ? 'res-high' : (isNeg ? 'res-neg' : '');
+            resContainer.innerHTML += `
+              <div class="resist-item">
+                <span class="resist-name">${res.name}</span>
+                <span class="resist-val ${valClass}">${res.value}</span>
+              </div>`;
+          });
+          
+          // Отрисовка Сумки
+          const consContainer = document.getElementById('consumables-container');
+          consContainer.innerHTML = '';
+          if (profile.consumables.length === 0) {
+            consContainer.innerHTML = '<div style="font-size:12px; color:#555; padding:5px;">Пусто</div>';
+          } else {
+            profile.consumables.forEach(function(item) {
+              consContainer.innerHTML += `<div class="inv-item"><span class="inv-name">${item.name}</span><span class="inv-count">${item.count}</span></div>`;
+            });
+          }
+
+          // Отрисовка Оружия
+          const wepContainer = document.getElementById('weapons-container');
+          wepContainer.innerHTML = '';
+          if (profile.weapons.length === 0) {
+            wepContainer.innerHTML = '<div style="font-size:12px; color:#555; padding:5px;">Пусто</div>';
+          } else {
+            profile.weapons.forEach(function(wep) {
+              wepContainer.innerHTML += `<div class="inv-item"><span class="inv-name">${wep.name}</span><span class="inv-count" style="background:#2d3748;">${wep.count}</span></div>`;
+            });
+          }
+        })
+        .getCharacterFullProfile(sheetName);
+    }
+
+    function openTab(evt, tabId) {
+      const tabContents = document.getElementsByClassName("tab-content");
+      for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].className = tabContents[i].className.replace(" active", "");
+      }
+      const tabBtns = document.getElementsByClassName("tab-btn");
+      for (let i = 0; i < tabBtns.length; i++) {
+        tabBtns[i].className = tabBtns[i].className.replace(" active", "");
+      }
+      document.getElementById(tabId).className += " active";
+      evt.currentTarget.className += " active";
+    }
+  </script>
+</body>
+</html>
