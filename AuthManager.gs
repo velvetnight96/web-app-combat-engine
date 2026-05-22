@@ -2,12 +2,12 @@
  * Главная функция запуска сайта. 
  * Указывает Google, какой именно HTML-файл открывать по ссылке.
  */
-function doGet() {
-  return HtmlService.createHtmlOutputFromFile('CharacterCard')
-      .setTitle('Combat Engine Mobile')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+function doGet(e) {
+  return HtmlService.createHtmlOutputFromFile('auth-screen')
+      .setTitle('Кто ты, Герой?')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
+
 
 /**
  * Сверяет логин/пароль с базой данных на листе _Users_DB.

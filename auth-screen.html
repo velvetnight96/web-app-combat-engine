@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кто ты, Герой?</title>
+    
+    <!-- Подключение готического шрифта Cormorant из Google Fonts -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+
+    <!-- Встроенные CSS стили для Google Apps Script (Исправлено кодирование картинок) -->
+    <style>
+        /* Общие настройки сцены и задний радиальный фон */
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #1a050a 0%, #050102 100%);
+            font-family: 'Cormorant', serif;
+            color: #EDD4AE;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* Главный контейнер (адаптирован под мобильные и ПК) */
+        .auth-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            max-height: 800px;
+            background-color: #1a1a1a;
+            /* Исправлено: Текстура шума переведена в Base64 */
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBvcGFjaXR5PSIwLjEyIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC43NSIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWx0ZXI9InVybCgibikiLz48L3N2Zz4='), 
+                              linear-gradient(135deg, #1c1c1c 0%, #111111 100%);
+            /* Глубокие тени и виньетка по краям */
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.95), 0 0 60px rgba(0, 0, 0, 0.85);
+            border: 1px solid #362e29;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 30px;
+            box-sizing: border-box;
+        }
+
+        /* Превращение в аккуратное игровое окно на больших экранах (ПК) */
+        @media (min-width: 480px) {
+            .auth-container {
+                height: auto;
+                border-radius: 4px;
+            }
+        }
+
+        /* Готический заголовок (Cormorant Bold) */
+        .auth-title {
+            font-family: 'Cormorant', serif;
+            font-weight: 700;
+            font-size: 36px;
+            color: #EDD4AE;
+            margin: 0 0 45px 0;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        /* Сетка формы */
+        .auth-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Подписи полей ввода (Cormorant Medium Italic) */
+        .input-label {
+            font-family: 'Cormorant', serif;
+            font-weight: 500;
+            font-style: italic;
+            font-size: 18px;
+            color: #8c7d6b;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* Обертка текстового поля */
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 260px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Стилизация темного поля ввода */
+        .input-wrapper input {
+            width: 100%;
+            background-color: #0b0b0b;
+            border: 1.5px solid #4a3f35;
+            padding: 10px 15px;
+            color: #FFF;
+            font-family: 'Cormorant', serif;
+            font-size: 20px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Подсветка инпута при фокусе в тон кнопке */
+        .input-wrapper input:focus {
+            border-color: #8c2525;
+            box-shadow: 0 0 10px rgba(140, 37, 37, 0.3);
+        }
+
+        /* Исправлено: Ромбы переведены в Base64 */
+        ./* ИСПРАВЛЕННЫЕ РОМБЫ ИНПУТОВ */
+/* ИСПРАВЛЕННЫЕ РОМБЫ ИНПУТОВ (КОД ПОЛНОСТЬЮ ОБНОВЛЕН) */
+/* ИСПРАВЛЕННЫЕ РОМБЫ ИНПУТОВ (КОД BASE64 СКОРРЕКТИРОВАН) */
+.input-decor {
+    position: absolute;
+    width: 21px;
+    height: 39px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    /* Центрируем ромбы по вертикали без использования знака % */
+    top: calc(50% - 19.5px); 
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMzkiIHZpZXdCb3g9IjAgMCAyMSAzOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYuMDY4NyAzNy43NVYzMy4yODI3TDE5LjA2MDcgMTkuMzQwN0w2LjA6MDY3IDUuMTQyMzdWMC43NSIgc3Ryb2tlPSIjRURENEFFIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTEuMDYwNjcgMTkuMjc3Nkw1Ljc5NyAxNC41NDEzTDEwLjUzMzMgMTkuMjc3Nkw1Ljc5NyAyNC4wMTM5TDEuMDYwNjcgMTkuMjc3NloiIHN0cm9rZT0iI0VERDRBRSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPg==');
+}
+
+.input-decor.left {
+    left: -32px;
+    transform: scaleX(-1); /* Смотрит острой частью на инпут */
+}
+
+.input-decor.right {
+    right: -32px;
+    transform: none; /* Смотрит острой частью на инпут */
+}
+
+        /* ТЕМНО-КРАСНАЯ РПГ-КНОПКА */
+        .btn-submit {
+            position: relative;
+            width: 100%;
+            max-width: 220px;
+            margin: 25px auto 0 auto;
+            padding: 14px;
+            background: linear-gradient(to bottom, #80121a 0%, #40050a 100%);
+            border: 1px solid #a6242e;
+            color: #ffffff;
+            font-family: 'Cormorant', serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        /* Изменение цвета при наведении */
+        .btn-submit:hover {
+            background: linear-gradient(to bottom, #991922 0%, #540810 100%);
+            box-shadow: 0 4px 20px rgba(166, 36, 46, 0.25);
+        }
+
+        /* Эффект нажатия */
+        .btn-submit:active {
+            transform: scale(0.98);
+            background: linear-gradient(to bottom, #40050a 0%, #210205 100%);
+        }
+
+        /* Неактивное состояние (блокировка) */
+        .btn-submit:disabled {
+            background: #2b2626;
+            border-color: #4a4242;
+            color: #5a5252;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Исправлено: Уголки кнопки переведены в Base64 */
+        /* ИСПРАВЛЕННЫЕ УГОЛКИ КНОПКИ */
+/* ИСПРАВЛЕННЫЕ УГОЛКИ КНОПКИ (СДВИГ УМЕНЬШЕН ВДВА РАЗА С -10px ДО -5px) */
+.btn-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE1Ljk1OTUgMy43OTExOVYxNS45MDkxSDQuMTU4ODkiIHN0cm9rZT0iI0VERDRBRSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZT0iI0VERDRBRSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTE1Ljk1OTUgMy43OTExOVYxNS45MDkxSDQuMTU4ODkiIHN0cm9rZT0iI0VERDRBRSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNS42MDEzIDkuODUwMTdIMTAuMDU5MlYxNS45MDkxIiBzdHJva2U9IiNFREQ0QUUiIHN0cm9rZT0iI0VERDRBRSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0xOS4wMTAyIDAuNzVWMTguNzVIMC43NSIgc3Ryb2tlPSIjRURENEFFIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPC9zdmc+');
+}
+
+/* Прижали ближе к границам кнопки (offset = -5px вместо -10px) */
+.btn-corner.top-left { top: -5px; left: -5px; transform: rotate(180deg); }
+.btn-corner.top-right { top: -5px; right: -5px; transform: rotate(270deg); }
+.btn-corner.bottom-right { bottom: -5px; right: -5px; transform: rotate(0deg); }
+.btn-corner.bottom-left { bottom: -5px; left: -5px; transform: rotate(90deg); }
+
+        /* Лог поиска / статус загрузки снизу */
+        .status-text {
+            font-size: 16px;
+            font-style: italic;
+            color: #6b5c4c;
+            margin-top: 40px;
+            letter-spacing: 1px;
+            text-align: center;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <!-- Заголовок экрана -->
+        <h1 class="auth-title">Кто ты, Герой?</h1>
+
+        <!-- Форма авторизации -->
+        <form class="auth-form" id="loginForm">
+            
+            <!-- Поле ввода: Имя -->
+            <div class="input-group">
+                <label class="input-label">имя мне:</label>
+                <div class="input-wrapper">
+                    <div class="input-decor left"></div>
+                    <input type="text" id="username" required autocomplete="off">
+                    <div class="input-decor right"></div>
+                </div>
+            </div>
+
+            <!-- Поле ввода: Кодовое слово -->
+            <div class="input-group">
+                <label class="input-label">кодовое слово:</label>
+                <div class="input-wrapper">
+                    <div class="input-decor left"></div>
+                    <input type="password" id="secretWord" required>
+                    <div class="input-decor right"></div>
+                </div>
+            </div>
+
+            <!-- Кнопка подтверждения -->
+            <button type="submit" class="btn-submit">
+                <div class="btn-corner top-left"></div>
+                <div class="btn-corner top-right"></div>
+                <div class="btn-corner bottom-left"></div>
+                <div class="btn-corner bottom-right"></div>
+                <span>ВОЙТИ</span>
+            </button>
+
